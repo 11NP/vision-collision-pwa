@@ -34,27 +34,44 @@ startBtn.addEventListener("click", async () => {
   }
 });
 
-async function detectFrame() {
+aasync function detectFrame() {
 
   const predictions = await model.detect(video);
 
   predictions.forEach(prediction => {
 
+    // Debug (temporary)
+    console.log(prediction.class, prediction.score);
+
     if (
-      prediction.class === "person" ||
-      prediction.class === "car" ||
-      prediction.class === "truck" ||
-      prediction.class === "bus" ||
-      prediction.class === "motorcycle"
+      (prediction.class === "person" ||
+       prediction.class === "car" ||
+       prediction.class === "truck" ||
+       prediction.class === "bus" ||
+       prediction.class === "motorcycle") 
+      &&
+      prediction.score > 0.5   // confidence filter
     ) {
 
       const height = prediction.bbox[3];
 
-      if (height > 200) {
-        warningAudio.play();
+      if (height > 80) {   // reduced threshold for mobile
+        triggerWarning();
       }
     }
   });
 
   requestAnimationFrame(detectFrame);
+}
+
+let lastAlertTime = 0;
+
+function triggerWarning() {
+  const now = Date.now();
+
+  // Prevent audio spam
+  if (now - lastAlertTime > 2000) {
+    warningAudio.play();
+    lastAlertTime = now;
+  }
 }
