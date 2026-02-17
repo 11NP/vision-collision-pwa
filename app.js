@@ -16,20 +16,26 @@ startBtn.addEventListener("click", async () => {
 
   await loadModel();
 
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: "environment" }
-  });
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" }
+    });
 
-  video.srcObject = stream;
+    video.srcObject = stream;
     await video.play();
 
+    video.addEventListener("loadeddata", () => {
+      detectFrame();
+    });
 
-  video.addEventListener("loadeddata", () => {
-    detectFrame();
-  });
+  } catch (error) {
+    console.error("Camera error:", error);
+    alert("Camera access failed. Check browser permissions.");
+  }
 });
 
 async function detectFrame() {
+
   const predictions = await model.detect(video);
 
   predictions.forEach(prediction => {
@@ -52,25 +58,3 @@ async function detectFrame() {
 
   requestAnimationFrame(detectFrame);
 }
-startBtn.addEventListener("click", async () => {
-  startBtn.style.display = "none";
-
-  await loadModel();
-
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment" }
-    });
-
-    video.srcObject = stream;
-    await video.play();
-
-    video.addEventListener("loadeddata", () => {
-      detectFrame();
-    });
-
-  } catch (error) {
-    console.error("Camera error:", error);
-    alert("Camera access failed. Check browser permissions.");
-  }
-});
