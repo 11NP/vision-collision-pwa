@@ -34,35 +34,15 @@ startBtn.addEventListener("click", async () => {
   }
 });
 
-aasync function detectFrame() {
+async function detectFrame() {
 
   const predictions = await model.detect(video);
 
-  predictions.forEach(prediction => {
-
-    // Debug (temporary)
-    console.log(prediction.class, prediction.score);
-
-    if (
-      (prediction.class === "person" ||
-       prediction.class === "car" ||
-       prediction.class === "truck" ||
-       prediction.class === "bus" ||
-       prediction.class === "motorcycle") 
-      &&
-      prediction.score > 0.5   // confidence filter
-    ) {
-
-      const height = prediction.bbox[3];
-
-      if (height > 80) {   // reduced threshold for mobile
-        triggerWarning();
-      }
-    }
-  });
+  console.log("Predictions:", predictions);
 
   requestAnimationFrame(detectFrame);
 }
+
 
 let lastAlertTime = 0;
 
