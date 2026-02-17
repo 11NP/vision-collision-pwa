@@ -21,6 +21,8 @@ startBtn.addEventListener("click", async () => {
   });
 
   video.srcObject = stream;
+    await video.play();
+
 
   video.addEventListener("loadeddata", () => {
     detectFrame();
@@ -51,28 +53,24 @@ async function detectFrame() {
   requestAnimationFrame(detectFrame);
 }
 startBtn.addEventListener("click", async () => {
-
-  console.log("Start clicked");
-
   startBtn.style.display = "none";
 
-  console.log("Loading model...");
   await loadModel();
-  console.log("Model loaded");
 
-  console.log("Requesting camera...");
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" }
+    });
 
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: "environment" }
-  });
+    video.srcObject = stream;
+    await video.play();
 
-  console.log("Camera granted");
+    video.addEventListener("loadeddata", () => {
+      detectFrame();
+    });
 
-  video.srcObject = stream;
-
-  video.addEventListener("loadeddata", () => {
-    console.log("Video loaded");
-    detectFrame();
-  });
+  } catch (error) {
+    console.error("Camera error:", error);
+    alert("Camera access failed. Check browser permissions.");
+  }
 });
-
