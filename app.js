@@ -4,6 +4,7 @@ const startBtn = document.getElementById("startBtn");
 const switchBtn = document.getElementById("switchBtn");
 const stopBtn = document.getElementById("stopBtn");
 const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
 
 let model;
 let stream = null;
@@ -90,15 +91,67 @@ async function detectFrame() {
 
   if (!detecting) return;
 
-  const now = Date.now();
+  const ctx = canvas.getContext("2d");
 
-  if (now - lastDetectionTime > detectionInterval) {
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
 
-    const predictions = await model.detect(video);
-    console.log("Predictions:", predictions);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    lastDetectionTime = now;
-  }
+  const predictions = await model.detect(video);
+
+  let counters = {};
+
+  predictions.forEach(prediction => {
+
+    const className = prediction.class;
+
+    if (
+      className !== "person" &&
+      className !== "car" &&
+      className !== "truck" &&
+      className !== "bus" &&
+      className !== "motorcycle"
+    ) return;
+
+    if (!counters[className]) {
+      counters[className] = 1;
+    } else {
+      counters[className]++;
+    }
+
+    const labelIndex = counters[className];
+
+    const [x, y, width, height] = prediction.bbox;
+
+    let boxColor = "green";
+    let riskText = "SAFE";
+
+    if (height > 200) {
+      boxColor = "red";
+      riskText = "80% COLLISION";
+    } 
+    else if (height > 120) {
+      boxColor = "orange";
+      riskText = "WARNING";
+    }
+
+    const label = `${className}${labelIndex} - ${riskText}`;
+
+    ctx.strokeStyle = boxColor;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, width, height);
+
+    ctx.fillStyle = boxColor;
+    ctx.fillRect(x, y - 30, ctx.measureText(label).width + 10, 28);
+
+    ctx.fillStyle = "black";
+    ctx.font = "16px Arial";
+    ctx.fillText(label, x + 5, y - 10);
+
+  });
 
   requestAnimationFrame(detectFrame);
 }
+
+ 
