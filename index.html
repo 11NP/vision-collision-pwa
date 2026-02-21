@@ -1,23 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Vision Collision Alert</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Forward Collision Warning System</title>
+
+  <!-- Mobile View -->
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <!-- Landscape Hint -->
+  <meta name="screen-orientation" content="landscape">
+
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#000000">
+
   <link rel="stylesheet" href="style.css">
 </head>
-<meta name="screen-orientation" content="landscape">
+
 <body>
 
+  <!-- Control Buttons -->
   <button id="startBtn">Start Monitoring</button>
   <button id="switchBtn">Switch Camera</button>
   <button id="stopBtn">Stop Monitoring</button>
 
-  <video id="video" autoplay playsinline></video>
+  <!-- Camera Feed -->
+  <video id="video" autoplay playsinline muted></video>
+
+  <!-- Detection Overlay -->
   <canvas id="canvas"></canvas>
 
-
+  <!-- TensorFlow -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0"></script>
+
+  <!-- COCO-SSD Model -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
+  <!-- App Logic -->
   <script src="app.js"></script>
 
 </body>
