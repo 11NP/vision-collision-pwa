@@ -34,11 +34,13 @@ async function startCamera() {
     await getCameras();
   }
 
-  const deviceId = cameras[currentCameraIndex].deviceId;
-
   stream = await navigator.mediaDevices.getUserMedia({
-    video: { deviceId: { exact: deviceId } }
-  });
+  video: {
+    deviceId: cameras[currentCameraIndex]?.deviceId
+      ? { ideal: cameras[currentCameraIndex].deviceId }
+      : undefined
+  }
+});
 
   video.srcObject = stream;
   await video.play();
