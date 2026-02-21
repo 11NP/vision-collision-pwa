@@ -67,10 +67,16 @@ startBtn.addEventListener("click", async () => {
   await loadModel();
   await getCameras();
   await startCamera();
-  if (screen.orientation && screen.orientation.lock) {
-  screen.orientation.lock("landscape").catch(err => {
+
+  if (document.documentElement.requestFullscreen) {
+  await document.documentElement.requestFullscreen();
+}
+ if (screen.orientation && screen.orientation.lock) {
+  try {
+    await screen.orientation.lock("landscape");
+  } catch (err) {
     console.log("Orientation lock failed:", err);
-  });
+  }
 }
 
   detecting = true;
