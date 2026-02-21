@@ -153,89 +153,94 @@ async function detectFrame() {
 
   predictions.forEach(prediction => {
 
-    const className = prediction.class;
+  if (prediction.score < 0.6) return;
 
-    if (
-      className !== "person" &&
-      className !== "car" &&
-      className !== "truck" &&
-      className !== "bus" &&
-      className !== "motorcycle"
-    ) return;
+  let className = prediction.class;
 
-    const [x, y, width, height] = prediction.bbox;
+  const vehicleClasses = [
+    "car",
+    "truck",
+    "bus",
+    "motorcycle"
+  ];
 
-    let boxColor = "green";
-    let riskText = "SAFE";
+  if (!vehicleClasses.includes(className) && className !== "person") {
+    className = "OBJECT";
+  }
 
-    const insidePath =
-      isInsideDrivingPath(x, y, width, height);
+  const [x, y, width, height] = prediction.bbox;
 
-    const objectId =
-      `${className}-${Math.round(x/20)}-${Math.round(y/20)}`;
+  let boxColor = "green";
+  let riskText = "SAFE";
 
-    if (insidePath) {
+  const insidePath =
+    isInsideDrivingPath(x, y, width, height);
 
-      const now = Date.now();
+  const objectId =
+    `${className}-${Math.round(x/20)}-${Math.round(y/20)}`;
 
-      if (!objectHistory[objectId]) {
-        objectHistory[objectId] = {
-          lastHeight: height,
-          lastTime: now
-        };
-      } else {
+  if (insidePath) {
 
-        const previous = objectHistory[objectId];
+    const now = Date.now();
 
-        const deltaHeight =
-          height - previous.lastHeight;
+    if (!objectHistory[objectId]) {
+      objectHistory[objectId] = {
+        lastHeight: height,
+        lastTime: now
+      };
+    } else {
 
-        const deltaTime =
-          (now - previous.lastTime) / 1000;
+      const previous = objectHistory[objectId];
 
-        const relativeSpeed =
-          deltaHeight / deltaTime;
+      const deltaHeight =
+        height - previous.lastHeight;
 
-        const ttc =
-          relativeSpeed > 0
-            ? height / relativeSpeed
-            : Infinity;
+      const deltaTime =
+        (now - previous.lastTime) / 1000;
 
-        if (ttc < 1.2) {
-          boxColor = "red";
-          riskText = "HIGH COLLISION";
-          collisionDetectedThisFrame = true;
-        }
-        else if (ttc < 2.5) {
-          boxColor = "orange";
-          riskText = "WARNING";
-        }
+      const relativeSpeed =
+        deltaHeight / deltaTime;
 
-        objectHistory[objectId] = {
-          lastHeight: height,
-          lastTime: now
-        };
+      const ttc =
+        relativeSpeed > 0
+          ? height / relativeSpeed
+          : Infinity;
+
+      if (ttc < 1.2) {
+        boxColor = "red";
+        riskText = "HIGH COLLISION";
+        collisionDetectedThisFrame = true;
+      }
+      else if (ttc < 2.5) {
+        boxColor = "orange";
+        riskText = "WARNING";
       }
 
-    } else {
-      riskText = "OUTSIDE PATH";
-      boxColor = "green";
+      objectHistory[objectId] = {
+        lastHeight: height,
+        lastTime: now
+      };
     }
 
-    ctx.strokeStyle = boxColor;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, width, height);
+  }
+  // 🔹 No "OUTSIDE PATH" text anymore.
+  // Outside path objects remain SAFE (green).
 
-    ctx.fillStyle = boxColor;
-    ctx.font = "16px Arial";
-    const label = `${className} - ${riskText}`;
-    const textWidth = ctx.measureText(label).width;
+  ctx.strokeStyle = boxColor;
+  ctx.lineWidth = 3;
+  ctx.strokeRect(x, y, width, height);
 
-    ctx.fillRect(x, y - 25, textWidth + 10, 25);
+  ctx.fillStyle = boxColor;
+  ctx.font = "16px Arial";
+  const label = `${className} - ${riskText}`;
+  const textWidth = ctx.measureText(label).width;
 
-    ctx.fillStyle = "black";
-    ctx.fillText(label, x + 5, y - 7);
-  });
+  ctx.fillRect(x, y - 25, textWidth + 10, 25);
+
+  ctx.fillStyle = "black";
+  ctx.fillText(label, x + 5, y - 7);
+
+});
 
   // 🔊 Stable Audio Trigger Logic
   if (collisionDetectedThisFrame) {
