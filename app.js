@@ -6,6 +6,8 @@ const stopBtn = document.getElementById("stopBtn");
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 
+
+
 let model;
 let stream = null;
 let detecting = false;
@@ -14,6 +16,14 @@ let cameras = [];
 let currentCameraIndex = 0;
 
 const objectHistory = {};
+// 🔊 Collision Audio System
+const warningAudio = new Audio("warning.mp3");
+warningAudio.loop = true;
+
+let collisionStartTime = null;
+let alarmPlaying = false;
+
+const collisionConfirmTime = 600; // milliseconds
 
 async function loadModel() {
   model = await cocoSsd.load();
@@ -139,6 +149,8 @@ async function detectFrame() {
 
   const predictions = await model.detect(video);
 
+  let collisionDetectedThisFrame = false;
+
   predictions.forEach(prediction => {
 
     const className = prediction.class;
@@ -192,6 +204,7 @@ async function detectFrame() {
         if (ttc < 1.2) {
           boxColor = "red";
           riskText = "HIGH COLLISION";
+          collisionDetectedThisFrame = true;
         }
         else if (ttc < 2.5) {
           boxColor = "orange";
@@ -223,6 +236,31 @@ async function detectFrame() {
     ctx.fillStyle = "black";
     ctx.fillText(label, x + 5, y - 7);
   });
+
+  // 🔊 Stable Audio Trigger Logic
+  if (collisionDetectedThisFrame) {
+
+    if (!collisionStartTime) {
+      collisionStartTime = Date.now();
+    }
+
+    const duration = Date.now() - collisionStartTime;
+
+    if (duration > collisionConfirmTime && !alarmPlaying) {
+      warningAudio.play();
+      alarmPlaying = true;
+    }
+
+  } else {
+
+    collisionStartTime = null;
+
+    if (alarmPlaying) {
+      warningAudio.pause();
+      warningAudio.currentTime = 0;
+      alarmPlaying = false;
+    }
+  }
 
   requestAnimationFrame(detectFrame);
 }
