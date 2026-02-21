@@ -5,34 +5,41 @@ body {
   font-family: sans-serif;
 }
 
-/* Video & Canvas */
-video, canvas {
+/* Video at bottom */
+video {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   object-fit: cover;
-  z-index: 1;   /* IMPORTANT */
+  z-index: 1;
 }
 
+/* Canvas above video */
 canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
+  z-index: 2;
 }
 
-/* Buttons */
+/* Buttons ABOVE everything */
 button {
   position: fixed;
-  z-index: 100;  /* ABOVE VIDEO */
+  z-index: 1000;
   padding: 12px 18px;
   font-size: 16px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
   background: rgba(0, 0, 0, 0.7);
   color: white;
 }
 
-/* Individual button positions */
+/* Position buttons */
 #startBtn {
   top: 20px;
   left: 50%;
