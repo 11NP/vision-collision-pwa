@@ -125,18 +125,17 @@ async function detectFrame() {
     const [x, y, width, height] = prediction.bbox;
 
     let boxColor = "green";
-    let riskText = "SAFE";
+    
 
     if (height > 200) {
       boxColor = "red";
-      riskText = "80% COLLISION";
     } 
     else if (height > 120) {
       boxColor = "orange";
-      riskText = "WARNING";
+     
     }
 
-    const label = `${className}${labelIndex} - ${riskText}`;
+    const label = `${className}${labelIndex}`;
 
     ctx.strokeStyle = boxColor;
     ctx.lineWidth = 3;
