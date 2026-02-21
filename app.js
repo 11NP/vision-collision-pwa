@@ -4,7 +4,7 @@ const startBtn = document.getElementById("startBtn");
 const switchBtn = document.getElementById("switchBtn");
 const stopBtn = document.getElementById("stopBtn");
 const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
+
 
 let model;
 let stream = null;
@@ -125,17 +125,18 @@ async function detectFrame() {
     const [x, y, width, height] = prediction.bbox;
 
     let boxColor = "green";
-    
+    let riskText = "SAFE";
 
     if (height > 200) {
       boxColor = "red";
+      riskText = COLLISION";
     } 
     else if (height > 120) {
       boxColor = "orange";
-     
+      riskText = "WARNING";
     }
 
-    const label = `${className}${labelIndex}`;
+    const label = `${className}${labelIndex} - ${riskText}`;
 
     ctx.strokeStyle = boxColor;
     ctx.lineWidth = 3;
