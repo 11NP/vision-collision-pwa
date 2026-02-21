@@ -7,26 +7,42 @@ const video = document.getElementById("video");
 
 let model;
 let stream = null;
-let currentFacingMode = "environment"; // start with back camera
 let detecting = false;
+
+let cameras = [];
+let currentCameraIndex = 0;
 
 async function loadModel() {
   model = await cocoSsd.load();
   console.log("MODEL LOADED");
 }
 
+async function getCameras() {
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  cameras = devices.filter(device => device.kind === "videoinput");
+  console.log("Available Cameras:", cameras);
+}
+
 async function startCamera() {
+
   if (stream) {
     stopCamera();
   }
 
+  if (cameras.length === 0) {
+    await getCameras();
+  }
+
+  const deviceId = cameras[currentCameraIndex].deviceId;
+
   stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: currentFacingMode }
+    video: { deviceId: { exact: deviceId } }
   });
 
   video.srcObject = stream;
   await video.play();
-  console.log("VIDEO READY STATE:", video.readyState);
+
+  console.log("Using camera index:", currentCameraIndex);
 }
 
 function stopCamera() {
@@ -43,6 +59,7 @@ startBtn.addEventListener("click", async () => {
   console.log("START CLICKED");
 
   await loadModel();
+  await getCameras();
   await startCamera();
 
   detecting = true;
@@ -51,23 +68,23 @@ startBtn.addEventListener("click", async () => {
 
 switchBtn.addEventListener("click", async () => {
 
-  console.log("SWITCH CAMERA");
+  if (cameras.length < 2) {
+    alert("Only one camera available");
+    return;
+  }
 
-  currentFacingMode =
-    currentFacingMode === "environment" ? "user" : "environment";
+  currentCameraIndex =
+    (currentCameraIndex + 1) % cameras.length;
 
   await startCamera();
 });
 
 stopBtn.addEventListener("click", () => {
-
-  console.log("STOP CLICKED");
-
   stopCamera();
 });
 
 let lastDetectionTime = 0;
-const detectionInterval = 200; // milliseconds (5 FPS)
+const detectionInterval = 200;
 
 async function detectFrame() {
 
@@ -78,7 +95,6 @@ async function detectFrame() {
   if (now - lastDetectionTime > detectionInterval) {
 
     const predictions = await model.detect(video);
-
     console.log("Predictions:", predictions);
 
     lastDetectionTime = now;
