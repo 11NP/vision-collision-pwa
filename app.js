@@ -129,7 +129,7 @@ async function detectFrame() {
 
     if (height > 200) {
       boxColor = "red";
-      riskText = COLLISION";
+      riskText = "COLLISION";
     } 
     else if (height > 120) {
       boxColor = "orange";
