@@ -146,27 +146,57 @@ async function detectFrame() {
   canvas.height = video.videoHeight;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // 🔷 Draw Driving Path Trapezoid
+
+const screenWidth = canvas.width;
+const screenHeight = canvas.height;
+
+const bottomLeft = screenWidth * 0.2;
+const bottomRight = screenWidth * 0.8;
+
+const topLeft = screenWidth * 0.45;
+const topRight = screenWidth * 0.55;
+
+const pathTopY = screenHeight * 0.4;
+
+// Optional transparent fill
+ctx.beginPath();
+ctx.moveTo(bottomLeft, screenHeight);
+ctx.lineTo(bottomRight, screenHeight);
+ctx.lineTo(topRight, pathTopY);
+ctx.lineTo(topLeft, pathTopY);
+ctx.closePath();
+
+ctx.fillStyle = "rgba(0, 255, 0, 0.08)";
+ctx.fill();
+
+ctx.strokeStyle = "lime";
+ctx.lineWidth = 2;
+ctx.stroke();
 
   const predictions = await model.detect(video);
 
   let collisionDetectedThisFrame = false;
 
-  predictions.forEach(prediction => {
+ predictions.forEach(prediction => {
 
   if (prediction.score < 0.6) return;
 
-  let className = prediction.class;
+  const className = prediction.class;
 
-  const vehicleClasses = [
-    "car",
-    "truck",
-    "bus",
-    "motorcycle"
-  ];
-
-  if (!vehicleClasses.includes(className) && className !== "person") {
-    className = "OBJECT";
-  }
+  // Allowed relevant road objects
+  if (
+    className !== "person" &&
+    className !== "car" &&
+    className !== "truck" &&
+    className !== "bus" &&
+    className !== "motorcycle" &&
+    className !== "bicycle" &&
+    className !== "dog" &&
+    className !== "bench" &&
+    className !== "fire hydrant" &&
+    className !== "tree"
+  ) return;
 
   const [x, y, width, height] = prediction.bbox;
 
@@ -223,8 +253,6 @@ async function detectFrame() {
     }
 
   }
-  // 🔹 No "OUTSIDE PATH" text anymore.
-  // Outside path objects remain SAFE (green).
 
   ctx.strokeStyle = boxColor;
   ctx.lineWidth = 3;
