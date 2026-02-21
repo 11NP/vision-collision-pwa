@@ -5,29 +5,30 @@ body {
   font-family: sans-serif;
 }
 
-/* Fullscreen video + overlay */
+/* Video & Canvas */
 video, canvas {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   object-fit: cover;
+  z-index: 1;   /* IMPORTANT */
 }
 
 canvas {
   pointer-events: none;
 }
 
-/* Buttons layout */
+/* Buttons */
 button {
   position: fixed;
-  z-index: 20;
+  z-index: 100;  /* ABOVE VIDEO */
   padding: 12px 18px;
   font-size: 16px;
   border: none;
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.7);
   color: white;
 }
 
