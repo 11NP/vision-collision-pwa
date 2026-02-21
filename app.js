@@ -38,7 +38,10 @@ async function startCamera() {
   video: {
     deviceId: cameras[currentCameraIndex]?.deviceId
       ? { ideal: cameras[currentCameraIndex].deviceId }
-      : undefined
+      : undefined,
+      aspectRatio: 16/9,
+      width: { ideal: 1280 },
+      height: { ideal: 720 }
   }
 });
 
@@ -64,6 +67,11 @@ startBtn.addEventListener("click", async () => {
   await loadModel();
   await getCameras();
   await startCamera();
+  if (screen.orientation && screen.orientation.lock) {
+  screen.orientation.lock("landscape").catch(err => {
+    console.log("Orientation lock failed:", err);
+  });
+}
 
   detecting = true;
   detectFrame();

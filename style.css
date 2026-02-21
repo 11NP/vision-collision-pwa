@@ -5,26 +5,13 @@ body {
   font-family: sans-serif;
 }
 
-/* Video at bottom */
-video {
+video, canvas {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   object-fit: cover;
-  z-index: 1;
-}
-
-/* Canvas above video */
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 2;
 }
 
 /* Buttons ABOVE everything */
@@ -54,4 +41,9 @@ button {
 #stopBtn {
   bottom: 20px;
   right: 20px;
+}
+@media screen and (orientation: landscape) {
+  button {
+    font-size: 14px;
+  }
 }
