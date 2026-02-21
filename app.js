@@ -66,13 +66,23 @@ stopBtn.addEventListener("click", () => {
   stopCamera();
 });
 
+let lastDetectionTime = 0;
+const detectionInterval = 200; // milliseconds (5 FPS)
+
 async function detectFrame() {
 
   if (!detecting) return;
 
-  const predictions = await model.detect(video);
+  const now = Date.now();
 
-  console.log("Predictions:", predictions);
+  if (now - lastDetectionTime > detectionInterval) {
+
+    const predictions = await model.detect(video);
+
+    console.log("Predictions:", predictions);
+
+    lastDetectionTime = now;
+  }
 
   requestAnimationFrame(detectFrame);
 }
