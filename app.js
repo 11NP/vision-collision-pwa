@@ -23,7 +23,7 @@ warningAudio.loop = true;
 let collisionStartTime = null;
 let alarmPlaying = false;
 
-const collisionConfirmTime = 100; // milliseconds
+const collisionConfirmTime = 600; // milliseconds
 
 async function loadModel() {
   model = await cocoSsd.load();
